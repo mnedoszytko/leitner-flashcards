@@ -78,6 +78,12 @@ When you answer correctly, cards move up a box. Wrong answers send cards back to
 3. **Study**: Review cards when they're due - the app automatically schedules them
 4. **Track Progress**: Monitor your learning with visual statistics
 
+### 💾 Important: Data Storage
+- Your flashcards are stored locally in your browser
+- Data persists even when we update the app
+- **Backup regularly**: Use Export feature to save your cards as JSON
+- Each browser/device has separate storage
+
 ## 📥 Importing Flashcards
 
 The app accepts JSON files in this format:
