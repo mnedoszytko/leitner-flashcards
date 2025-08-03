@@ -430,40 +430,55 @@ export const ImportExport: React.FC = () => {
 
         {/* LLM Prompt Template */}
         <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-          <h2 className="text-xl font-semibold mb-4">LLM Prompt for OCR Processing</h2>
+          <h2 className="text-xl font-semibold mb-4">Prompt LLM do generowania fiszek (Polish)</h2>
           <p className="text-gray-600 mb-4">
-            Use this prompt template when processing OCR'd PDFs through an LLM to generate flashcards:
+            Użyj tego promptu przy przetwarzaniu tekstów przez AI, aby wygenerować fiszki po polsku:
           </p>
           
           <pre className="bg-gray-100 p-4 rounded-lg overflow-x-auto text-sm">
-{`You are a flashcard generation expert. Convert the following OCR'd text into structured flashcards.
+{`Jesteś ekspertem w tworzeniu fiszek edukacyjnych. Przekształć poniższy tekst w fiszki do nauki metodą Leitnera.
 
-RULES:
-1. Create clear, concise question-answer pairs
-2. One concept per card
-3. Use active recall principles
-4. Include hints when helpful
-5. Tag appropriately for organization
+ZASADY:
+1. Twórz jasne, zwięzłe pary pytanie-odpowiedź PO POLSKU
+2. Jedna koncepcja na fiszkę
+3. Stosuj zasady aktywnego przypominania
+4. Dodawaj wskazówki tam, gdzie są pomocne
+5. Odpowiednio taguj do organizacji
+6. WSZYSTKIE TEKSTY (pytania, odpowiedzi, wskazówki) MUSZĄ BYĆ PO POLSKU
 
-INPUT FORMAT:
-[OCR'd text will be inserted here]
+TEKST WEJŚCIOWY:
+[Tu zostanie wstawiony tekst do przetworzenia]
 
-OUTPUT FORMAT:
-Return a JSON array of flashcard objects:
+FORMAT WYJŚCIOWY:
+Zwróć tablicę JSON z fiszkami (struktura po angielsku, treść po polsku):
 {
   "cards": [
     {
       "type": "basic",
-      "front": "[Question or prompt]",
-      "back": "[Answer or solution]",
-      "hints": ["[Optional hint]"],
-      "tags": ["[relevant]", "[tags]"],
+      "front": "[Pytanie po polsku]",
+      "back": "[Odpowiedź po polsku]",
+      "hints": ["[Opcjonalna wskazówka po polsku]"],
+      "tags": ["[tagi po polsku]"],
       "difficulty": [1-5]
     }
   ]
 }
 
-Generate flashcards from the text above.`}
+Przykład:
+{
+  "cards": [
+    {
+      "type": "basic",
+      "front": "Jaka jest stolica Polski?",
+      "back": "Warszawa",
+      "hints": ["Największe miasto w Polsce"],
+      "tags": ["geografia", "polska", "stolice"],
+      "difficulty": 1
+    }
+  ]
+}
+
+Wygeneruj fiszki z powyższego tekstu.`}
           </pre>
         </div>
 
