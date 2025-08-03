@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import type { Subject } from '../../types/flashcard.types';
 import { LeitnerAlgorithm } from '../../services/leitnerAlgorithm';
 import { db } from '../../services/database';
+import { motion } from 'framer-motion';
 
 export const LearnOverview: React.FC = () => {
+  const navigate = useNavigate();
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<any>({});
@@ -56,22 +58,26 @@ export const LearnOverview: React.FC = () => {
 
         {/* Quick Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white rounded-lg shadow p-4 text-center">
-            <div className="text-3xl font-bold text-blue-600">{stats.total || 0}</div>
-            <div className="text-sm text-gray-600">Total Cards</div>
-          </div>
-          <div className="bg-white rounded-lg shadow p-4 text-center">
-            <div className="text-3xl font-bold text-orange-600">{stats.dueToday || 0}</div>
-            <div className="text-sm text-gray-600">Due Today</div>
-          </div>
-          <div className="bg-white rounded-lg shadow p-4 text-center">
-            <div className="text-3xl font-bold text-green-600">{stats.mastered || 0}</div>
-            <div className="text-sm text-gray-600">Mastered</div>
-          </div>
-          <div className="bg-white rounded-lg shadow p-4 text-center">
-            <div className="text-3xl font-bold text-purple-600">{stats.averageCorrectRate || 0}%</div>
-            <div className="text-sm text-gray-600">Success Rate</div>
-          </div>
+          {[
+            { value: stats.total || 0, label: 'Total Cards', color: 'text-blue-600', delay: 0 },
+            { value: stats.dueToday || 0, label: 'Due Today', color: 'text-orange-600', delay: 0.1 },
+            { value: stats.mastered || 0, label: 'Mastered', color: 'text-green-600', delay: 0.2 },
+            { value: `${stats.averageCorrectRate || 0}%`, label: 'Success Rate', color: 'text-purple-600', delay: 0.3 }
+          ].map((stat) => (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: stat.delay, duration: 0.3 }}
+              whileHover={{ y: -2, transition: { duration: 0.2 } }}
+              className="bg-white rounded-lg shadow p-4 text-center transition-all duration-200 hover:shadow-md"
+            >
+              <div className={`text-3xl font-bold ${stat.color}`}>
+                {stat.value}
+              </div>
+              <div className="text-sm text-gray-600">{stat.label}</div>
+            </motion.div>
+          ))}
         </div>
 
         {/* Box Statistics */}
@@ -83,15 +89,21 @@ export const LearnOverview: React.FC = () => {
               const percentage = stats.total > 0 ? Math.round((cardsInBox / stats.total) * 100) : 0;
               
               return (
-                <div
+                <motion.div
                   key={box.id}
-                  className={`p-6 rounded-lg border-2 ${box.color} ${box.bgGradient} shadow-md hover:shadow-lg transition-shadow`}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: box.id * 0.05, duration: 0.3 }}
+                  whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
+                  whileTap={{ scale: 0.99 }}
+                  onClick={() => navigate(`/learn/box/${box.id}`)}
+                  className={`p-6 rounded-lg border-2 ${box.color} ${box.bgGradient} shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer`}
                 >
                   <div className="text-3xl mb-2">{box.icon}</div>
                   <div className="font-semibold text-sm">{box.name}</div>
                   <div className="text-2xl font-bold mt-2">{cardsInBox}</div>
                   <div className="text-xs text-gray-600">cards ({percentage}%)</div>
-                </div>
+                </motion.div>
               );
             })}
           </div>
@@ -99,31 +111,48 @@ export const LearnOverview: React.FC = () => {
 
         {/* Action Buttons */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-          {stats.dueToday > 0 ? (
-            <Link
-              to="/learn/review"
-              className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg p-6 text-center hover:shadow-lg transition-shadow"
-            >
-              <div className="text-4xl mb-2">📚</div>
-              <h3 className="text-xl font-semibold">Start Review</h3>
-              <p className="text-blue-100 mt-1">{stats.dueToday} cards due today</p>
-            </Link>
-          ) : (
-            <div className="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg p-6 text-center">
-              <div className="text-4xl mb-2">✅</div>
-              <h3 className="text-xl font-semibold">All Done!</h3>
-              <p className="text-green-100 mt-1">No cards due today</p>
-            </div>
-          )}
-          
-          <Link
-            to="/learn/subjects"
-            className="bg-white border-2 border-gray-200 rounded-lg p-6 text-center hover:shadow-lg transition-shadow"
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2, duration: 0.3 }}
+            whileHover={{ y: -2, transition: { duration: 0.2 } }}
           >
-            <div className="text-4xl mb-2">📂</div>
-            <h3 className="text-xl font-semibold text-gray-800">Browse by Subject</h3>
-            <p className="text-gray-600 mt-1">{subjects.length} subjects available</p>
-          </Link>
+            {stats.dueToday > 0 ? (
+              <Link
+                to="/learn/review"
+                className="block bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg p-6 text-center hover:shadow-lg transition-shadow"
+              >
+                <div className="text-4xl mb-2">📚</div>
+                <h3 className="text-xl font-semibold">Start Review</h3>
+                <p className="text-blue-100 mt-1">{stats.dueToday} cards due today</p>
+              </Link>
+            ) : (
+              <Link
+                to="/learn/subjects"
+                className="block bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg p-6 text-center hover:shadow-lg transition-shadow"
+              >
+                <div className="text-4xl mb-2">📖</div>
+                <h3 className="text-xl font-semibold">Study New Cards</h3>
+                <p className="text-green-100 mt-1">Choose a subject to study</p>
+              </Link>
+            )}
+          </motion.div>
+          
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.25, duration: 0.3 }}
+            whileHover={{ y: -2, transition: { duration: 0.2 } }}
+          >
+            <Link
+              to="/learn/subjects"
+              className="block bg-white border-2 border-gray-200 rounded-lg p-6 text-center hover:shadow-lg transition-shadow"
+            >
+              <div className="text-4xl mb-2">📂</div>
+              <h3 className="text-xl font-semibold text-gray-800">Browse by Subject</h3>
+              <p className="text-gray-600 mt-1">{subjects.length} subjects available</p>
+            </Link>
+          </motion.div>
         </div>
 
         {/* Recent Activity */}

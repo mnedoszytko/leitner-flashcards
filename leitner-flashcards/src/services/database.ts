@@ -114,17 +114,17 @@ export class FlashcardDatabase extends Dexie {
   }
 
   async getCardsDueForReview(deckId?: string): Promise<Flashcard[]> {
-    const today = new Date().toISOString().split('T')[0];
+    const now = new Date().toISOString();
     
     if (deckId) {
       return await this.cards
         .where('deckId').equals(deckId)
-        .and(card => !card.nextReview || card.nextReview <= today)
+        .and(card => !card.nextReview || card.nextReview <= now)
         .toArray();
     }
     
     return await this.cards
-      .filter(card => !card.nextReview || card.nextReview <= today)
+      .filter(card => !card.nextReview || card.nextReview <= now)
       .toArray();
   }
 

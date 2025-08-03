@@ -3,14 +3,17 @@ import type { Flashcard, StudySession } from '../../types/flashcard.types';
 import { LeitnerAlgorithm } from '../../services/leitnerAlgorithm';
 import { db } from '../../services/database';
 import { Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface ReviewSessionProps {
   cards: Flashcard[];
   deckId: string;
   onComplete: (session: StudySession) => void;
+  subjectName?: string;
+  subjectIcon?: string;
 }
 
-export const ReviewSession: React.FC<ReviewSessionProps> = ({ cards, deckId, onComplete }) => {
+export const ReviewSession: React.FC<ReviewSessionProps> = ({ cards, deckId, onComplete, subjectName, subjectIcon }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
   const sessionCards = cards;
@@ -111,13 +114,29 @@ export const ReviewSession: React.FC<ReviewSessionProps> = ({ cards, deckId, onC
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-6">
-          <Link to="/" className="text-gray-600 hover:text-gray-800 inline-flex items-center gap-2">
-            ← Back to Dashboard
-          </Link>
+          <div className="flex items-center justify-between">
+            <Link to="/" className="text-gray-600 hover:text-gray-800 inline-flex items-center gap-2">
+              ← Back to Dashboard
+            </Link>
+            {subjectName && (
+              <motion.div 
+                className="flex items-center gap-2 text-gray-700 bg-white px-4 py-2 rounded-lg shadow"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+              >
+                <span className="text-xl">{subjectIcon || '📚'}</span>
+                <span className="font-medium">Reviewing: {subjectName}</span>
+              </motion.div>
+            )}
+          </div>
         </div>
 
         {/* Progress */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-xl shadow-lg p-6 mb-6"
+        >
           <div className="flex justify-between items-center mb-4">
             <span className="text-sm text-gray-600">
               Card {currentIndex + 1} of {sessionCards.length} • Box {currentCard.box}
@@ -129,34 +148,63 @@ export const ReviewSession: React.FC<ReviewSessionProps> = ({ cards, deckId, onC
           
           {/* Progress bar */}
           <div className="w-full bg-gray-200 rounded-full h-2">
-            <div 
-              className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${((currentIndex + 1) / sessionCards.length) * 100}%` }}
+            <motion.div 
+              className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: `${((currentIndex + 1) / sessionCards.length) * 100}%` }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
             />
           </div>
-        </div>
+        </motion.div>
 
         {/* Card */}
-        <div className="bg-white rounded-xl shadow-lg p-8 mb-6">
+        <motion.div 
+          className="bg-white rounded-xl shadow-lg p-8 mb-6"
+          initial={{ scale: 0.95, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.3 }}
+        >
           <div className="min-h-[300px] flex flex-col justify-center">
-            <div className="text-xl font-semibold text-gray-800 text-center mb-6">
-              {currentCard.front}
-            </div>
+            <AnimatePresence mode="wait">
+              <motion.div 
+                key={`card-${currentIndex}`}
+                initial={{ x: 100, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: -100, opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="text-xl font-semibold text-gray-800 text-center mb-6"
+              >
+                {currentCard.front}
+              </motion.div>
+            </AnimatePresence>
             
-            {showAnswer && (
-              <div className="mt-6 p-6 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg">
-                <div className="text-lg text-gray-700 text-center">
-                  {currentCard.back}
-                </div>
-              </div>
-            )}
+            <AnimatePresence>
+              {showAnswer && (
+                <motion.div 
+                  initial={{ rotateX: -90, opacity: 0 }}
+                  animate={{ rotateX: 0, opacity: 1 }}
+                  exit={{ rotateX: 90, opacity: 0 }}
+                  transition={{ duration: 0.4 }}
+                  className="mt-6 p-6 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg"
+                >
+                  <div className="text-lg text-gray-700 text-center">
+                    {currentCard.back}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {currentCard.hints && currentCard.hints.length > 0 && !showAnswer && (
-              <div className="text-center mt-4">
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                className="text-center mt-4"
+              >
                 <p className="text-sm text-gray-500 italic">
                   Hint: {currentCard.hints[0]}
                 </p>
-              </div>
+              </motion.div>
             )}
           </div>
 
@@ -170,29 +218,49 @@ export const ReviewSession: React.FC<ReviewSessionProps> = ({ cards, deckId, onC
               ← Previous
             </button>
 
-            {!showAnswer ? (
-              <button
-                onClick={() => setShowAnswer(true)}
-                className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
-              >
-                Show Answer
-              </button>
-            ) : (
-              <div className="flex gap-4">
-                <button
-                  onClick={() => handleAnswer(false)}
-                  className="px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-colors inline-flex items-center gap-2"
+            <AnimatePresence mode="wait">
+              {!showAnswer ? (
+                <motion.button
+                  key="show-answer"
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.8, opacity: 0 }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
+                  onClick={() => setShowAnswer(true)}
+                  className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
                 >
-                  <span>✗</span> Incorrect
-                </button>
-                <button
-                  onClick={() => handleAnswer(true)}
-                  className="px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition-colors inline-flex items-center gap-2"
+                  Show Answer
+                </motion.button>
+              ) : (
+                <motion.div 
+                  key="answer-buttons"
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.8, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex gap-4"
                 >
-                  <span>✓</span> Correct
-                </button>
-              </div>
-            )}
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => handleAnswer(false)}
+                    className="px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-colors inline-flex items-center gap-2"
+                  >
+                    <span>✗</span> Incorrect
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => handleAnswer(true)}
+                    className="px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition-colors inline-flex items-center gap-2"
+                  >
+                    <span>✓</span> Correct
+                  </motion.button>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             <button
               onClick={nextCard}
@@ -202,30 +270,34 @@ export const ReviewSession: React.FC<ReviewSessionProps> = ({ cards, deckId, onC
               Next →
             </button>
           </div>
-        </div>
+        </motion.div>
 
         {/* Session Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-white rounded-lg shadow p-4 text-center">
-            <div className="text-2xl font-bold text-blue-600">{session.cardsReviewed}</div>
-            <div className="text-sm text-gray-600">Reviewed</div>
-          </div>
-          <div className="bg-white rounded-lg shadow p-4 text-center">
-            <div className="text-2xl font-bold text-green-600">{session.correctAnswers}</div>
-            <div className="text-sm text-gray-600">Correct</div>
-          </div>
-          <div className="bg-white rounded-lg shadow p-4 text-center">
-            <div className="text-2xl font-bold text-orange-600">
-              {session.cardsReviewed > 0 
-                ? Math.round((session.correctAnswers / session.cardsReviewed) * 100) 
-                : 0}%
-            </div>
-            <div className="text-sm text-gray-600">Accuracy</div>
-          </div>
-          <div className="bg-white rounded-lg shadow p-4 text-center">
-            <div className="text-2xl font-bold text-purple-600">{sessionCards.length - currentIndex - 1}</div>
-            <div className="text-sm text-gray-600">Remaining</div>
-          </div>
+          {[
+            { value: session.cardsReviewed, label: 'Reviewed', color: 'text-blue-600', delay: 0 },
+            { value: session.correctAnswers, label: 'Correct', color: 'text-green-600', delay: 0.1 },
+            { value: session.cardsReviewed > 0 ? `${Math.round((session.correctAnswers / session.cardsReviewed) * 100)}%` : '0%', label: 'Accuracy', color: 'text-orange-600', delay: 0.2 },
+            { value: sessionCards.length - currentIndex - 1, label: 'Remaining', color: 'text-purple-600', delay: 0.3 }
+          ].map((stat, index) => (
+            <motion.div
+              key={stat.label}
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: stat.delay, duration: 0.3 }}
+              className="bg-white rounded-lg shadow p-4 text-center"
+            >
+              <motion.div 
+                className={`text-2xl font-bold ${stat.color}`}
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: stat.delay + 0.2, type: "spring", stiffness: 200 }}
+              >
+                {stat.value}
+              </motion.div>
+              <div className="text-sm text-gray-600">{stat.label}</div>
+            </motion.div>
+          ))}
         </div>
       </div>
     </div>

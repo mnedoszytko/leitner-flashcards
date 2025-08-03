@@ -5,6 +5,8 @@ import { LearnOverview } from './components/Learn/LearnOverview';
 import { LearnBySubject } from './components/Learn/LearnBySubject';
 import { SubjectLearn } from './components/Learn/SubjectLearn';
 import { ReviewSession } from './components/ReviewSession/ReviewSession';
+import { ReviewBySubject } from './components/Learn/ReviewBySubject';
+import { BoxDetails } from './components/Learn/BoxDetails';
 import { SubjectManager } from './components/Flashcards/SubjectManager';
 import { CardManager } from './components/Flashcards/CardManager';
 import { ImportExport } from './components/ImportExport/ImportExport';
@@ -25,8 +27,9 @@ function App() {
               {/* Learn Routes */}
               <Route path="/" element={<Navigate to="/learn" replace />} />
               <Route path="/learn" element={<LearnOverview />} />
-              <Route path="/learn/subjects" element={<LearnBySubject />} />
+              <Route path="/learn/subjects" element={<ReviewBySubject />} />
               <Route path="/learn/subject/:subjectId" element={<SubjectLearn />} />
+              <Route path="/learn/box/:boxId" element={<BoxDetails />} />
               <Route path="/learn/review/:subjectId?" element={<ReviewPage />} />
               
               {/* Flashcards Management Routes */}
