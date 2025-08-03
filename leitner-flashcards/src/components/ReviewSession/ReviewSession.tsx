@@ -279,7 +279,7 @@ export const ReviewSession: React.FC<ReviewSessionProps> = ({ cards, deckId, onC
             { value: session.correctAnswers, label: 'Correct', color: 'text-green-600', delay: 0.1 },
             { value: session.cardsReviewed > 0 ? `${Math.round((session.correctAnswers / session.cardsReviewed) * 100)}%` : '0%', label: 'Accuracy', color: 'text-orange-600', delay: 0.2 },
             { value: sessionCards.length - currentIndex - 1, label: 'Remaining', color: 'text-purple-600', delay: 0.3 }
-          ].map((stat, index) => (
+          ].map((stat) => (
             <motion.div
               key={stat.label}
               initial={{ y: 20, opacity: 0 }}

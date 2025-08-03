@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import type { Subject, Flashcard, Deck } from '../../types/flashcard.types';
+import type { Subject, Flashcard } from '../../types/flashcard.types';
 import { db } from '../../services/database';
 import { LeitnerAlgorithm } from '../../services/leitnerAlgorithm';
 import { motion } from 'framer-motion';
@@ -10,7 +10,7 @@ export const SubjectLearn: React.FC = () => {
   const { subjectId } = useParams();
   const navigate = useNavigate();
   const [subject, setSubject] = useState<Subject | null>(null);
-  const [cards, setCards] = useState<Flashcard[]>([]);
+  const [, setCards] = useState<Flashcard[]>([]);
   const [dueCards, setDueCards] = useState<Flashcard[]>([]);
   const [stats, setStats] = useState<any>({});
   const [loading, setLoading] = useState(true);

@@ -2,7 +2,6 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { NavigationBar } from './components/Navigation/NavigationBar';
 import { LearnOverview } from './components/Learn/LearnOverview';
-import { LearnBySubject } from './components/Learn/LearnBySubject';
 import { SubjectLearn } from './components/Learn/SubjectLearn';
 import { ReviewSession } from './components/ReviewSession/ReviewSession';
 import { ReviewBySubject } from './components/Learn/ReviewBySubject';

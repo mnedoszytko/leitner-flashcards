@@ -58,6 +58,7 @@ export const CardManager: React.FC = () => {
         name: deckName,
         description: data.metadata?.description || 'Fiszki zaimportowane z ChatGPT',
         subjectId: subjectId!,
+        cards: [],
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       });
@@ -74,13 +75,11 @@ export const CardManager: React.FC = () => {
           tags: card.tags || [],
           deckId: deckId,
           box: 1,
-          lastReviewed: null,
+          lastReviewed: undefined,
           nextReview: new Date().toISOString(),
+          reviewCount: 0,
           correctCount: 0,
-          incorrectCount: 0,
-          difficulty: card.difficulty || 1,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
+          difficulty: card.difficulty || 1
         };
         
         await db.cards.add(newCard);
