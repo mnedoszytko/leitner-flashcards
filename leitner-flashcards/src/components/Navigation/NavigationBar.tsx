@@ -86,8 +86,8 @@ export const NavigationBar: React.FC = () => {
                   to="/import"
                   className="block px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-b-lg"
                 >
-                  <div className="font-medium">Import/Export</div>
-                  <div className="text-sm text-gray-500">Backup & restore</div>
+                  <div className="font-medium">Backup & Import/Export</div>
+                  <div className="text-sm text-gray-500">Save & restore data</div>
                 </Link>
               </div>
             </div>
@@ -157,7 +157,7 @@ export const NavigationBar: React.FC = () => {
                 className="block pl-8 pr-3 py-2 text-gray-600 text-sm"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Import/Export
+                Backup & Import/Export
               </Link>
             </div>
           </div>

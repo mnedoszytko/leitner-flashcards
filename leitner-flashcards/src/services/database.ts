@@ -19,13 +19,16 @@ export class FlashcardDatabase extends Dexie {
     });
   }
 
-  async importData(data: any) {
+  async importData(data: any, options: { clearExisting?: boolean } = { clearExisting: true }) {
     try {
-      await this.transaction('rw', this.subjects, this.decks, this.cards, async () => {
-        // Clear existing data
-        await this.subjects.clear();
-        await this.decks.clear();
-        await this.cards.clear();
+      await this.transaction('rw', this.subjects, this.decks, this.cards, this.sessions, async () => {
+        if (options.clearExisting) {
+          // Clear existing data for full restore
+          await this.subjects.clear();
+          await this.decks.clear();
+          await this.cards.clear();
+          await this.sessions.clear();
+        }
 
         // Import subjects (handle both old 'sections' and new 'subjects' keys)
         const subjectsData = data.subjects || data.sections;
@@ -65,19 +68,32 @@ export class FlashcardDatabase extends Dexie {
             }
           }
         }
+
+        // Import sessions if available (for full backup restore)
+        if (data.sessions && Array.isArray(data.sessions)) {
+          for (const session of data.sessions) {
+            await this.sessions.add(session);
+          }
+        }
       });
 
-      return { success: true, message: 'Data imported successfully' };
+      const isFullBackup = data.metadata?.exportType === 'full-backup';
+      return { 
+        success: true, 
+        message: isFullBackup ? 'Full backup restored successfully' : 'Data imported successfully',
+        stats: data.metadata?.stats
+      };
     } catch (error) {
       console.error('Import failed:', error);
       return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 
-  async exportData() {
+  async exportData(includeStats = true) {
     const subjects = await this.subjects.toArray();
     const decks = await this.decks.toArray();
     const cards = await this.cards.toArray();
+    const sessions = includeStats ? await this.sessions.toArray() : [];
 
     // Build hierarchical structure
     const subjectsWithDecks = await Promise.all(
@@ -102,14 +118,29 @@ export class FlashcardDatabase extends Dexie {
       })
     );
 
+    // Calculate statistics
+    const stats = {
+      totalSubjects: subjects.length,
+      totalDecks: decks.length,
+      totalCards: cards.length,
+      totalSessions: sessions.length,
+      cardsByBox: cards.reduce((acc, card) => {
+        acc[card.box] = (acc[card.box] || 0) + 1;
+        return acc;
+      }, {} as Record<number, number>)
+    };
+
     return {
-      version: '1.0',
+      version: '1.1',
       metadata: {
         created: new Date().toISOString(),
-        source: 'Leitner Flashcards App'
+        source: 'Leitner Flashcards App',
+        exportType: 'full-backup',
+        stats
       },
       subjects: subjectsWithDecks,
-      decks: standaloneDecksWithCards
+      decks: standaloneDecksWithCards,
+      sessions: includeStats ? sessions : undefined
     };
   }
 
