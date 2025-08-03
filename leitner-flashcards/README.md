@@ -2,7 +2,12 @@
 
 A modern, offline-first flashcard learning application using the 4-box Leitner spaced repetition system.
 
-## Features
+## 🚀 Live Demo
+
+**No installation required!** Visit the app directly at:
+### 👉 [https://mnedoszytko.github.io/leitner-flashcards/](https://mnedoszytko.github.io/leitner-flashcards/)
+
+## ✨ Features
 
 - 📚 **4-Box Leitner System**: Optimized spaced repetition for effective learning
 - 💾 **Offline Storage**: All data stored locally using IndexedDB
@@ -12,73 +17,107 @@ A modern, offline-first flashcard learning application using the 4-box Leitner s
 - 🎨 **Beautiful UI**: Modern, responsive design with smooth animations
 - 🔄 **LLM Integration Ready**: Structured format for OCR/AI-generated cards
 
-## Quick Start
+## 🎯 Installation Options
+
+### Option 1: Use Online (No Installation Required)
+Simply visit [https://mnedoszytko.github.io/leitner-flashcards/](https://mnedoszytko.github.io/leitner-flashcards/) in your web browser.
+
+### Option 2: One-Command Local Installation
+For those who prefer to run locally, use this single command:
 
 ```bash
+npx degit mnedoszytko/leitner-flashcards my-flashcards && cd my-flashcards && npm install && npm run dev
+```
+
+This will:
+1. Download the app to a folder called `my-flashcards`
+2. Install all dependencies
+3. Start the app at http://localhost:5173
+
+### Option 3: Manual Installation
+```bash
+# Clone the repository
+git clone https://github.com/mnedoszytko/leitner-flashcards.git
+cd leitner-flashcards
+
 # Install dependencies
 npm install
 
 # Run development server
 npm run dev
-
-# Build for production
-npm run build
 ```
 
-## Leitner Box System
+### Option 4: Quick Static Server
+If you have Node.js installed, you can serve a pre-built version:
+
+```bash
+# Clone and build
+git clone https://github.com/mnedoszytko/leitner-flashcards.git
+cd leitner-flashcards
+npm install && npm run build
+
+# Serve the built files
+npx serve dist
+```
+
+## 📚 How It Works
+
+### The 4-Box Leitner System
 
 - **Box 1**: New/incorrect cards (review daily)
-- **Box 2**: Cards answered correctly once (review every 3 days)
+- **Box 2**: Cards answered correctly once (review every 3 days)  
 - **Box 3**: Cards answered correctly twice (review weekly)
 - **Box 4**: Mastered cards (review monthly)
 
-## Import Format
+When you answer correctly, cards move up a box. Wrong answers send cards back to Box 1.
 
-The application accepts JSON files in the following format:
+## 🎮 Usage Guide
+
+1. **Create Subjects**: Organize your flashcards by topic (e.g., "Spanish Vocabulary", "Biology Terms")
+2. **Add Cards**: Create flashcards with questions and answers
+3. **Study**: Review cards when they're due - the app automatically schedules them
+4. **Track Progress**: Monitor your learning with visual statistics
+
+## 📥 Importing Flashcards
+
+The app accepts JSON files in this format:
 
 ```json
 {
   "version": "1.0",
   "metadata": {
-    "source": "OCR_PDF",
-    "created": "2025-08-02",
-    "subject": "Mathematics",
-    "language": "en"
+    "source": "manual",
+    "created": "2025-08-03",
+    "subject": "Spanish",
+    "language": "es"
   },
-  "decks": [
+  "cards": [
     {
-      "id": "deck-uuid",
-      "name": "Algebra Basics",
-      "cards": [
-        {
-          "type": "basic",
-          "front": "Question text",
-          "back": "Answer text",
-          "hints": ["Optional hint"],
-          "tags": ["math", "algebra"],
-          "difficulty": 1
-        }
-      ]
+      "type": "basic",
+      "front": "What is 'hello' in Spanish?",
+      "back": "Hola",
+      "hints": ["Common greeting"],
+      "tags": ["greetings", "basic"],
+      "difficulty": 1
     }
   ]
 }
 ```
 
-## LLM Prompt for OCR Processing
+## 🤖 Creating Flashcards with AI
 
-When processing OCR'd PDFs through an LLM, use this prompt:
+Use this prompt with ChatGPT or Claude to convert your notes into flashcards:
 
 ```
-You are a flashcard generation expert. Convert the following OCR'd text into structured flashcards.
+Convert the following text into flashcards for the Leitner system.
 
-RULES:
-1. Create clear, concise question-answer pairs
-2. One concept per card
-3. Use active recall principles
-4. Include hints when helpful
-5. Tag appropriately for organization
+Create clear question-answer pairs following these rules:
+- One concept per card
+- Use active recall (questions that make you think)
+- Keep answers concise
+- Add hints for difficult concepts
 
-OUTPUT FORMAT:
+Output as JSON:
 {
   "cards": [
     {
@@ -86,25 +125,64 @@ OUTPUT FORMAT:
       "front": "[Question]",
       "back": "[Answer]",
       "hints": ["[Optional hint]"],
-      "tags": ["[tags]"],
-      "difficulty": [1-5]
+      "tags": ["[relevant tags]"],
+      "difficulty": 1
     }
   ]
 }
+
+Text to convert:
+[PASTE YOUR NOTES HERE]
 ```
 
-## Usage
+## 🛠️ Development
 
-1. **Import Cards**: Use the Import page to load flashcards from JSON files
-2. **Review**: Cards due for review appear automatically on the dashboard
-3. **Track Progress**: Monitor your learning progress through the statistics
-4. **Export**: Backup your data anytime as JSON
+```bash
+# Install dependencies
+npm install
 
-## Technologies
+# Run development server with hot reload
+npm run dev
 
-- React 18 with TypeScript
-- Vite for fast builds
-- TailwindCSS for styling
-- Framer Motion for animations
-- Dexie.js for IndexedDB management
-- React Router for navigation
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+
+# Deploy to GitHub Pages
+npm run deploy
+```
+
+## 🧪 Technologies Used
+
+- **React 18** with TypeScript for robust UI
+- **Vite** for lightning-fast builds
+- **Tailwind CSS v4** for modern styling
+- **Framer Motion** for smooth animations
+- **Dexie.js** for IndexedDB management
+- **React Router** for navigation
+
+## 📱 Features Coming Soon
+
+- [ ] Mobile app version
+- [ ] Cloud sync option
+- [ ] More card types (image cards, cloze deletion)
+- [ ] Study streaks and achievements
+- [ ] Dark mode
+- [ ] Export to Anki format
+
+## 🤝 Contributing
+
+Contributions are welcome! Feel free to:
+- Report bugs
+- Suggest new features
+- Submit pull requests
+
+## 📄 License
+
+MIT License - feel free to use this for your own learning!
+
+---
+
+Made with ❤️ for better learning
