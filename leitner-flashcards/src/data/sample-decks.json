@@ -1,0 +1,131 @@
+{
+  "version": "1.0",
+  "metadata": {
+    "source": "Sample Data",
+    "created": "2025-08-02",
+    "subject": "Mixed Topics",
+    "language": "en"
+  },
+  "subjects": [
+    {
+      "id": "languages",
+      "name": "Language Learning",
+      "icon": "🌍",
+      "color": "#3B82F6",
+      "decks": [
+        {
+          "id": "spanish-basics",
+          "name": "Spanish Basics",
+          "description": "Essential Spanish vocabulary and phrases",
+          "tags": ["spanish", "language", "beginner"],
+          "createdAt": "2025-08-02T00:00:00Z",
+          "updatedAt": "2025-08-02T00:00:00Z",
+          "cards": [
+            {
+              "id": "es-1",
+              "type": "basic",
+              "front": "Hello",
+              "back": "Hola",
+              "hints": ["Common greeting"],
+              "tags": ["greetings"],
+              "difficulty": 1
+            },
+            {
+              "id": "es-2",
+              "type": "basic",
+              "front": "Thank you",
+              "back": "Gracias",
+              "hints": ["Expression of gratitude"],
+              "tags": ["politeness"],
+              "difficulty": 1
+            },
+            {
+              "id": "es-3",
+              "type": "basic",
+              "front": "How are you?",
+              "back": "¿Cómo estás?",
+              "hints": ["Common question when meeting someone"],
+              "tags": ["greetings", "questions"],
+              "difficulty": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "science",
+      "name": "Science",
+      "icon": "🔬",
+      "color": "#10B981",
+      "decks": [
+        {
+          "id": "chemistry-basics",
+          "name": "Chemistry Fundamentals",
+          "description": "Basic chemistry concepts and formulas",
+          "tags": ["chemistry", "science"],
+          "createdAt": "2025-08-02T00:00:00Z",
+          "updatedAt": "2025-08-02T00:00:00Z",
+          "cards": [
+            {
+              "id": "chem-1",
+              "type": "basic",
+              "front": "What is the chemical symbol for water?",
+              "back": "H₂O",
+              "hints": ["Two hydrogen atoms and one oxygen atom"],
+              "tags": ["formulas", "compounds"],
+              "difficulty": 1
+            },
+            {
+              "id": "chem-2",
+              "type": "basic",
+              "front": "What is the atomic number of Carbon?",
+              "back": "6",
+              "hints": ["Number of protons in the nucleus"],
+              "tags": ["periodic table", "elements"],
+              "difficulty": 2
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "decks": [
+    {
+      "id": "math-algebra",
+      "name": "Algebra Fundamentals",
+      "description": "Basic algebraic concepts and formulas",
+      "tags": ["math", "algebra"],
+      "createdAt": "2025-08-02T00:00:00Z",
+      "updatedAt": "2025-08-02T00:00:00Z",
+      "cards": [
+        {
+          "id": "math-1",
+          "type": "basic",
+          "front": "What is the quadratic formula?",
+          "back": "x = (-b ± √(b² - 4ac)) / 2a",
+          "hints": ["Used to solve ax² + bx + c = 0"],
+          "tags": ["formula", "quadratic"],
+          "difficulty": 3
+        },
+        {
+          "id": "math-2",
+          "type": "basic",
+          "front": "Simplify: 2x + 3x",
+          "back": "5x",
+          "hints": ["Combine like terms"],
+          "tags": ["simplification"],
+          "difficulty": 1
+        },
+        {
+          "id": "math-3",
+          "type": "basic",
+          "front": "What is the slope-intercept form of a linear equation?",
+          "back": "y = mx + b",
+          "hints": ["m is slope, b is y-intercept"],
+          "tags": ["linear equations", "formulas"],
+          "difficulty": 2
+        }
+      ]
+    }
+  ]
+}
