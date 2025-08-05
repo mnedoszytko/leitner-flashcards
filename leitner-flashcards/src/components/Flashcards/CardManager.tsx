@@ -322,53 +322,91 @@ export const CardManager: React.FC = () => {
                   <h3 className="text-lg font-semibold mb-3">Krok 1: Skopiuj ten prompt do ChatGPT</h3>
                   <div className="relative">
                     <div className="bg-gray-100 p-4 rounded-lg font-mono text-sm overflow-x-auto">
-                      <pre className="whitespace-pre-wrap">{`Wygeneruj fiszki na temat [TWÓJ TEMAT] w następującym formacie JSON:
+                      <pre className="whitespace-pre-wrap">{`ZADANIE: Przygotowanie fiszek do nauki farmaceutycznej
+
+KROK 1 - ANALIZA:
+Dokładnie przeanalizuj dostarczony materiał dotyczący [TWÓJ TEMAT]. Zidentyfikuj:
+- Kluczowe pojęcia i definicje
+- Mechanizmy działania
+- Wskazania i przeciwwskazania
+- Działania niepożądane
+- Interakcje
+- Dawkowanie
+- Wszystkie istotne informacje egzaminacyjne
+
+KROK 2 - GENEROWANIE FISZEK:
+Na podstawie analizy wygeneruj DOKŁADNIE 50 fiszek w formacie JSON:
 
 {
   "metadata": {
-    "deckName": "[Nazwa talii]",
-    "description": "[Krótki opis]",
-    "topic": "[Temat]",
+    "deckName": "[Nazwa talii - np. Farmakologia: Leki kardiologiczne]",
+    "description": "[Opis zawartości - np. Fiszki obejmujące leki stosowane w kardiologii]",
+    "topic": "[Dokładny temat]",
     "language": "pl"
   },
   "cards": [
     {
       "type": "basic",
-      "front": "[Pytanie lub pojęcie]",
-      "back": "[Odpowiedź lub definicja]",
-      "hints": ["Opcjonalna wskazówka 1", "Opcjonalna wskazówka 2"],
-      "tags": ["tag1", "tag2"],
-      "difficulty": 1
+      "front": "[Pytanie lub pojęcie medyczne]",
+      "back": "[Dokładna, naukowa odpowiedź]",
+      "hints": ["Wskazówka pomocna w zapamiętaniu"],
+      "tags": ["farmakologia", "egzamin", "konkretny_dział"],
+      "difficulty": 1-5
     }
   ]
 }
 
-Proszę wygeneruj 10-20 fiszek zgodnie z tą dokładną strukturą. Upewnij się, że JSON jest poprawny.`}</pre>
+WYMAGANIA:
+1. Wygeneruj DOKŁADNIE 50 fiszek
+2. Pokryj WSZYSTKIE ważne zagadnienia z materiału
+3. Używaj precyzyjnej terminologii medycznej
+4. Difficulty: 1-łatwe, 3-średnie, 5-trudne
+5. Upewnij się, że JSON jest poprawny
+6. Fiszki muszą być przydatne na egzaminie farmaceutycznym`}</pre>
                     </div>
                     <button
                       onClick={() => {
-                        const prompt = `Wygeneruj fiszki na temat [TWÓJ TEMAT] w następującym formacie JSON:
+                        const prompt = `ZADANIE: Przygotowanie fiszek do nauki farmaceutycznej
+
+KROK 1 - ANALIZA:
+Dokładnie przeanalizuj dostarczony materiał dotyczący [TWÓJ TEMAT]. Zidentyfikuj:
+- Kluczowe pojęcia i definicje
+- Mechanizmy działania
+- Wskazania i przeciwwskazania
+- Działania niepożądane
+- Interakcje
+- Dawkowanie
+- Wszystkie istotne informacje egzaminacyjne
+
+KROK 2 - GENEROWANIE FISZEK:
+Na podstawie analizy wygeneruj DOKŁADNIE 50 fiszek w formacie JSON:
 
 {
   "metadata": {
-    "deckName": "[Nazwa talii]",
-    "description": "[Krótki opis]",
-    "topic": "[Temat]",
+    "deckName": "[Nazwa talii - np. Farmakologia: Leki kardiologiczne]",
+    "description": "[Opis zawartości - np. Fiszki obejmujące leki stosowane w kardiologii]",
+    "topic": "[Dokładny temat]",
     "language": "pl"
   },
   "cards": [
     {
       "type": "basic",
-      "front": "[Pytanie lub pojęcie]",
-      "back": "[Odpowiedź lub definicja]",
-      "hints": ["Opcjonalna wskazówka 1", "Opcjonalna wskazówka 2"],
-      "tags": ["tag1", "tag2"],
-      "difficulty": 1
+      "front": "[Pytanie lub pojęcie medyczne]",
+      "back": "[Dokładna, naukowa odpowiedź]",
+      "hints": ["Wskazówka pomocna w zapamiętaniu"],
+      "tags": ["farmakologia", "egzamin", "konkretny_dział"],
+      "difficulty": 1-5
     }
   ]
 }
 
-Proszę wygeneruj 10-20 fiszek zgodnie z tą dokładną strukturą. Upewnij się, że JSON jest poprawny.`;
+WYMAGANIA:
+1. Wygeneruj DOKŁADNIE 50 fiszek
+2. Pokryj WSZYSTKIE ważne zagadnienia z materiału
+3. Używaj precyzyjnej terminologii medycznej
+4. Difficulty: 1-łatwe, 3-średnie, 5-trudne
+5. Upewnij się, że JSON jest poprawny
+6. Fiszki muszą być przydatne na egzaminie farmaceutycznym`;
                         navigator.clipboard.writeText(prompt);
                         alert('Prompt skopiowany do schowka!');
                       }}
@@ -378,7 +416,7 @@ Proszę wygeneruj 10-20 fiszek zgodnie z tą dokładną strukturą. Upewnij się
                     </button>
                   </div>
                   <p className="text-sm text-gray-600 mt-2">
-                    Zamień <code>[TWÓJ TEMAT]</code> na wybrany temat (np. "Słownictwo angielskie", "Pojęcia z biologii", "Stolice świata")
+                    Zamień <code>[TWÓJ TEMAT]</code> na konkretny temat farmaceutyczny (np. "Leki beta-adrenolityczne", "Antybiotyki beta-laktamowe", "Leki przeciwnadciśnieniowe", "Farmakologia układu nerwowego")
                   </p>
                 </div>
                 
