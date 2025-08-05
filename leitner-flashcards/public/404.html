@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Leitner Flashcards - Learn with Spaced Repetition</title>
+    <script>
+      // GitHub Pages SPA redirect workaround
+      // This script takes the current location and replaces the path with a query parameter
+      const path = window.location.pathname;
+      if (path !== '/' && path !== '/index.html') {
+        // Store the attempted path
+        sessionStorage.setItem('redirectPath', path);
+        // Redirect to the root with the path as a query parameter
+        window.location.replace(window.location.origin + '/leitner-flashcards/');
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

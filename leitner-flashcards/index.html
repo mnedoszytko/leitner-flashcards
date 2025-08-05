@@ -5,6 +5,17 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Leitner Flashcards - Learn with Spaced Repetition</title>
+    <script>
+      // Handle redirect from 404.html for GitHub Pages
+      (function() {
+        const redirectPath = sessionStorage.getItem('redirectPath');
+        if (redirectPath) {
+          sessionStorage.removeItem('redirectPath');
+          // Let React Router handle the navigation after app loads
+          window.__REDIRECT_PATH__ = redirectPath;
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
