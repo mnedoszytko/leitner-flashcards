@@ -18,7 +18,7 @@ const queryClient = new QueryClient();
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Router>
+      <Router basename="/leitner-flashcards">
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
           <NavigationBar />
           <main>
