@@ -16,11 +16,24 @@ export const ImportExport: React.FC = () => {
 
   const processImportData = async (data: any) => {
     // Validate data structure
-    if (!data.version && !data.decks && !data.sections) {
-      throw new Error('Invalid file format. Expected JSON with version, decks, or sections.');
+    if (!data.version && !data.decks && !data.sections && !data.subject) {
+      throw new Error('Invalid file format. Expected JSON with version, decks, sections, or subject.');
     }
 
-    // Initialize cards with Leitner algorithm
+    // Check if this is a single subject import
+    const isSingleSubject = data.metadata?.exportType === 'single-subject';
+
+    // Initialize cards with Leitner algorithm for single subject
+    if (isSingleSubject && data.subject) {
+      if (data.subject.decks) {
+        data.subject.decks = data.subject.decks.map((deck: any) => ({
+          ...deck,
+          cards: deck.cards?.map((card: any) => LeitnerAlgorithm.initializeCard(card)) || []
+        }));
+      }
+    }
+
+    // Initialize cards with Leitner algorithm for regular imports
     if (data.decks) {
       data.decks = data.decks.map((deck: any) => ({
         ...deck,
@@ -38,11 +51,13 @@ export const ImportExport: React.FC = () => {
       }));
     }
 
-    const result = await db.importData(data);
+    // Don't clear existing data for single subject imports
+    const options = isSingleSubject ? { clearExisting: false } : { clearExisting: true };
+    const result = await db.importData(data, options);
     
     if (result.success) {
-      setMessage({ type: 'success', text: 'Data imported successfully!' });
-      setTimeout(() => navigate('/'), 2000);
+      setMessage({ type: 'success', text: result.message || 'Data imported successfully!' });
+      setTimeout(() => navigate('/flashcards/subjects'), 2000);
     } else {
       throw new Error(result.error || 'Import failed');
     }
@@ -282,6 +297,12 @@ export const ImportExport: React.FC = () => {
               <p className="text-gray-600 mb-4">
                 Select a JSON file from your computer to import flashcards.
               </p>
+              <div className="bg-blue-50 rounded-lg p-3 mb-4">
+                <p className="text-sm text-blue-800">
+                  <strong>Note:</strong> Single subject exports can be imported without losing your existing data. 
+                  Full database exports will replace all current data.
+                </p>
+              </div>
               
               <input
                 ref={fileInputRef}

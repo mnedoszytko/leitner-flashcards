@@ -156,6 +156,28 @@ export const CardManager: React.FC = () => {
     }
   };
 
+  const handleExportSubject = async () => {
+    try {
+      const data = await db.exportSubject(subjectId!);
+      const json = JSON.stringify(data, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `subject-${subject?.name?.toLowerCase().replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      alert(`Subject "${subject?.name}" exported successfully!`);
+    } catch (error) {
+      console.error('Export error:', error);
+      alert('Failed to export subject');
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -207,32 +229,41 @@ export const CardManager: React.FC = () => {
               </button>
             </div>
             
-            {cards.length > 0 && (
-              <div className="flex gap-3">
-                {selectedCards.size > 0 && (
-                  <span className="text-sm text-gray-600 mr-2">
-                    {selectedCards.size} selected
-                  </span>
-                )}
-                <button
-                  onClick={handleDeleteSelected}
-                  disabled={selectedCards.size === 0}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                    selectedCards.size > 0
-                      ? 'bg-red-600 hover:bg-red-700 text-white'
-                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  }`}
-                >
-                  Delete Selected ({selectedCards.size})
-                </button>
-                <button
-                  onClick={handleDeleteAll}
-                  className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-                >
-                  Delete All
-                </button>
-              </div>
-            )}
+            <div className="flex gap-3">
+              <button
+                onClick={handleExportSubject}
+                className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
+              >
+                <span>📤</span> Export Subject
+              </button>
+              
+              {cards.length > 0 && (
+                <>
+                  {selectedCards.size > 0 && (
+                    <span className="text-sm text-gray-600 mr-2">
+                      {selectedCards.size} selected
+                    </span>
+                  )}
+                  <button
+                    onClick={handleDeleteSelected}
+                    disabled={selectedCards.size === 0}
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                      selectedCards.size > 0
+                        ? 'bg-red-600 hover:bg-red-700 text-white'
+                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    }`}
+                  >
+                    Delete Selected ({selectedCards.size})
+                  </button>
+                  <button
+                    onClick={handleDeleteAll}
+                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                  >
+                    Delete All
+                  </button>
+                </>
+              )}
+            </div>
           </div>
           
           {cards.length === 0 ? (

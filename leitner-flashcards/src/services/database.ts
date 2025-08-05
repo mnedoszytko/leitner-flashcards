@@ -21,8 +21,12 @@ export class FlashcardDatabase extends Dexie {
 
   async importData(data: any, options: { clearExisting?: boolean } = { clearExisting: true }) {
     try {
+      // Check if this is a single subject import
+      const isSingleSubject = data.metadata?.exportType === 'single-subject';
+      
       await this.transaction('rw', this.subjects, this.decks, this.cards, this.sessions, async () => {
-        if (options.clearExisting) {
+        // Only clear existing data for full backup restore, not for single subject imports
+        if (options.clearExisting && !isSingleSubject) {
           // Clear existing data for full restore
           await this.subjects.clear();
           await this.decks.clear();
@@ -30,6 +34,49 @@ export class FlashcardDatabase extends Dexie {
           await this.sessions.clear();
         }
 
+        // Handle single subject import
+        if (isSingleSubject && data.subject) {
+          const { decks, ...subjectData } = data.subject;
+          
+          // Generate new IDs to avoid conflicts
+          const originalSubjectId = subjectData.id;
+          const newSubjectId = `subject-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+          subjectData.id = newSubjectId;
+          
+          // Check if a subject with the same name already exists
+          const existingSubject = await this.subjects.where('name').equals(subjectData.name).first();
+          if (existingSubject) {
+            subjectData.name = `${subjectData.name} (Imported ${new Date().toLocaleDateString()})`;
+          }
+          
+          await this.subjects.add(subjectData);
+
+          // Import decks for this subject with new IDs
+          if (decks) {
+            for (const deck of decks) {
+              const { cards, ...deckData } = deck;
+              const originalDeckId = deckData.id;
+              const newDeckId = `deck-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+              deckData.id = newDeckId;
+              deckData.subjectId = newSubjectId;
+              
+              await this.decks.add(deckData);
+
+              // Import cards for this deck with new IDs
+              if (cards) {
+                for (const card of cards) {
+                  const newCard = { ...card };
+                  newCard.id = `card-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+                  newCard.deckId = newDeckId;
+                  await this.cards.add(newCard);
+                }
+              }
+            }
+          }
+          return;
+        }
+
+        // Original import logic for full imports
         // Import subjects (handle both old 'sections' and new 'subjects' keys)
         const subjectsData = data.subjects || data.sections;
         if (subjectsData) {
@@ -78,9 +125,15 @@ export class FlashcardDatabase extends Dexie {
       });
 
       const isFullBackup = data.metadata?.exportType === 'full-backup';
+      const message = isSingleSubject 
+        ? `Subject "${data.metadata?.subjectName}" imported successfully` 
+        : isFullBackup 
+          ? 'Full backup restored successfully' 
+          : 'Data imported successfully';
+          
       return { 
         success: true, 
-        message: isFullBackup ? 'Full backup restored successfully' : 'Data imported successfully',
+        message,
         stats: data.metadata?.stats
       };
     } catch (error) {
@@ -141,6 +194,53 @@ export class FlashcardDatabase extends Dexie {
       subjects: subjectsWithDecks,
       decks: standaloneDecksWithCards,
       sessions: includeStats ? sessions : undefined
+    };
+  }
+
+  async exportSubject(subjectId: string) {
+    const subject = await this.subjects.get(subjectId);
+    if (!subject) {
+      throw new Error('Subject not found');
+    }
+
+    // Get all decks for this subject
+    const subjectDecks = await this.decks.where('subjectId').equals(subjectId).toArray();
+    const deckIds = subjectDecks.map(d => d.id);
+    
+    // Get all cards from these decks
+    const cards = await this.cards.where('deckId').anyOf(deckIds).toArray();
+    
+    // Build hierarchical structure
+    const decksWithCards = await Promise.all(
+      subjectDecks.map(async (deck) => {
+        const deckCards = cards.filter(card => card.deckId === deck.id);
+        return { ...deck, cards: deckCards };
+      })
+    );
+
+    // Calculate statistics for this subject
+    const stats = {
+      totalDecks: subjectDecks.length,
+      totalCards: cards.length,
+      cardsByBox: cards.reduce((acc, card) => {
+        acc[card.box] = (acc[card.box] || 0) + 1;
+        return acc;
+      }, {} as Record<number, number>)
+    };
+
+    return {
+      version: '1.1',
+      metadata: {
+        created: new Date().toISOString(),
+        source: 'Leitner Flashcards App',
+        exportType: 'single-subject',
+        subjectName: subject.name,
+        stats
+      },
+      subject: {
+        ...subject,
+        decks: decksWithCards
+      }
     };
   }
 
