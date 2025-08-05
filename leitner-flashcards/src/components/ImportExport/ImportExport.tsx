@@ -10,6 +10,8 @@ export const ImportExport: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'file' | 'paste'>('file');
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const [showBackupConfirm, setShowBackupConfirm] = useState(false);
+  const [pendingImportData, setPendingImportData] = useState<any>(null);
+  const [showImportConfirm, setShowImportConfirm] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const backupFileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
@@ -73,29 +75,107 @@ export const ImportExport: React.FC = () => {
     }
   };
 
+  const analyzeImportData = (data: any) => {
+    const analysis: any = {
+      isSingleSubject: data.metadata?.exportType === 'single-subject',
+      isFullBackup: data.metadata?.exportType === 'full-backup',
+      subjects: 0,
+      decks: 0,
+      cards: 0,
+      willClearData: true,
+      importType: 'Unknown'
+    };
+
+    if (analysis.isSingleSubject && data.subject) {
+      analysis.willClearData = false;
+      analysis.importType = 'Single Subject';
+      analysis.subjects = 1;
+      analysis.subjectName = data.subject.name;
+      if (data.subject.decks) {
+        analysis.decks = data.subject.decks.length;
+        analysis.cards = data.subject.decks.reduce((sum: number, deck: any) => 
+          sum + (deck.cards?.length || 0), 0);
+      }
+    } else if (analysis.isFullBackup) {
+      analysis.importType = 'Full Database Backup';
+      analysis.willClearData = true;
+      if (data.subjects) {
+        analysis.subjects = data.subjects.length;
+        analysis.decks = data.subjects.reduce((sum: number, subject: any) => 
+          sum + (subject.decks?.length || 0), 0);
+        analysis.cards = data.subjects.reduce((sum: number, subject: any) => 
+          subject.decks?.reduce((cardSum: number, deck: any) => 
+            cardSum + (deck.cards?.length || 0), 0) || 0, 0);
+      }
+    } else if (data.subjects || data.sections) {
+      analysis.importType = 'Multiple Subjects';
+      const subjects = data.subjects || data.sections;
+      analysis.subjects = subjects.length;
+      analysis.decks = subjects.reduce((sum: number, subject: any) => 
+        sum + (subject.decks?.length || 0), 0);
+      analysis.cards = subjects.reduce((sum: number, subject: any) => 
+        subject.decks?.reduce((cardSum: number, deck: any) => 
+          cardSum + (deck.cards?.length || 0), 0) || 0, 0);
+    } else if (data.decks) {
+      analysis.importType = 'Standalone Decks';
+      analysis.decks = data.decks.length;
+      analysis.cards = data.decks.reduce((sum: number, deck: any) => 
+        sum + (deck.cards?.length || 0), 0);
+    }
+
+    return analysis;
+  };
+
   const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    setImporting(true);
     setMessage(null);
 
     try {
       const text = await file.text();
       const data = JSON.parse(text);
-      await processImportData(data);
+      
+      // Analyze the data and show confirmation
+      setPendingImportData(data);
+      setShowImportConfirm(true);
     } catch (error) {
       console.error('Import error:', error);
       setMessage({ 
         type: 'error', 
-        text: error instanceof Error ? error.message : 'Failed to import file' 
+        text: error instanceof Error ? error.message : 'Failed to read file' 
       });
     } finally {
-      setImporting(false);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
     }
+  };
+
+  const confirmImport = async () => {
+    if (!pendingImportData) return;
+    
+    setImporting(true);
+    setShowImportConfirm(false);
+    
+    try {
+      await processImportData(pendingImportData);
+    } catch (error) {
+      console.error('Import error:', error);
+      setMessage({ 
+        type: 'error', 
+        text: error instanceof Error ? error.message : 'Failed to import data' 
+      });
+    } finally {
+      setImporting(false);
+      setPendingImportData(null);
+    }
+  };
+
+  const cancelImport = () => {
+    setShowImportConfirm(false);
+    setPendingImportData(null);
+    setMessage({ type: 'error', text: 'Import cancelled' });
   };
 
   const handlePasteImport = async () => {
@@ -104,12 +184,14 @@ export const ImportExport: React.FC = () => {
       return;
     }
 
-    setImporting(true);
     setMessage(null);
 
     try {
       const data = JSON.parse(jsonInput);
-      await processImportData(data);
+      
+      // Analyze the data and show confirmation
+      setPendingImportData(data);
+      setShowImportConfirm(true);
     } catch (error) {
       console.error('Import error:', error);
       if (error instanceof SyntaxError) {
@@ -120,11 +202,9 @@ export const ImportExport: React.FC = () => {
       } else {
         setMessage({ 
           type: 'error', 
-          text: error instanceof Error ? error.message : 'Failed to import data' 
+          text: error instanceof Error ? error.message : 'Failed to parse data' 
         });
       }
-    } finally {
-      setImporting(false);
     }
   };
 
@@ -542,6 +622,85 @@ Wygeneruj fiszki z powyższego tekstu.`}
             message.type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
           }`}>
             {message.text}
+          </div>
+        )}
+
+        {/* Import Confirmation Modal */}
+        {showImportConfirm && pendingImportData && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-lg max-w-2xl w-full p-6">
+              <h2 className="text-2xl font-bold mb-4">Confirm Import</h2>
+              
+              {(() => {
+                const analysis = analyzeImportData(pendingImportData);
+                return (
+                  <>
+                    <div className="mb-6 space-y-3">
+                      <div className="flex items-center justify-between py-2 border-b">
+                        <span className="font-medium">Import Type:</span>
+                        <span className="text-blue-600 font-semibold">{analysis.importType}</span>
+                      </div>
+                      
+                      {analysis.subjectName && (
+                        <div className="flex items-center justify-between py-2 border-b">
+                          <span className="font-medium">Subject Name:</span>
+                          <span>{analysis.subjectName}</span>
+                        </div>
+                      )}
+                      
+                      <div className="flex items-center justify-between py-2 border-b">
+                        <span className="font-medium">Content:</span>
+                        <span>
+                          {analysis.subjects > 0 && `${analysis.subjects} subject${analysis.subjects > 1 ? 's' : ''}, `}
+                          {analysis.decks} deck{analysis.decks !== 1 ? 's' : ''}, {analysis.cards} card{analysis.cards !== 1 ? 's' : ''}
+                        </span>
+                      </div>
+                    </div>
+
+                    {analysis.willClearData ? (
+                      <div className="mb-6 p-4 bg-red-50 border-2 border-red-200 rounded-lg">
+                        <p className="text-red-800 font-semibold flex items-center gap-2">
+                          <span className="text-2xl">⚠️</span>
+                          WARNING: This will DELETE all existing data!
+                        </p>
+                        <p className="text-red-700 mt-2">
+                          All your current subjects, decks, and cards will be permanently removed and replaced with the imported data.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="mb-6 p-4 bg-green-50 border-2 border-green-200 rounded-lg">
+                        <p className="text-green-800 font-semibold flex items-center gap-2">
+                          <span className="text-2xl">✅</span>
+                          Safe Import: Your existing data will be preserved
+                        </p>
+                        <p className="text-green-700 mt-2">
+                          This subject will be added to your existing collection without deleting anything.
+                        </p>
+                      </div>
+                    )}
+
+                    <div className="flex gap-3 justify-end">
+                      <button
+                        onClick={cancelImport}
+                        className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={confirmImport}
+                        className={`px-6 py-2 rounded-lg font-medium transition-colors ${
+                          analysis.willClearData
+                            ? 'bg-red-600 hover:bg-red-700 text-white'
+                            : 'bg-blue-600 hover:bg-blue-700 text-white'
+                        }`}
+                      >
+                        {analysis.willClearData ? 'Delete All & Import' : 'Import'}
+                      </button>
+                    </div>
+                  </>
+                );
+              })()}
+            </div>
           </div>
         )}
       </div>
