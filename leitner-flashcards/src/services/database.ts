@@ -21,17 +21,31 @@ export class FlashcardDatabase extends Dexie {
 
   async importData(data: any, options: { clearExisting?: boolean } = { clearExisting: true }) {
     try {
+      console.log('=== IMPORT DEBUG START ===');
+      console.log('Import data:', data);
+      console.log('Options:', options);
+      console.log('Metadata:', data.metadata);
+      console.log('Export type:', data.metadata?.exportType);
+      
       // Check if this is a single subject import
       const isSingleSubject = data.metadata?.exportType === 'single-subject';
+      console.log('Is single subject?', isSingleSubject);
       
       await this.transaction('rw', this.subjects, this.decks, this.cards, this.sessions, async () => {
         // Only clear existing data for full backup restore, not for single subject imports
-        if (options.clearExisting && !isSingleSubject) {
+        const shouldClear = options.clearExisting && !isSingleSubject;
+        console.log('Should clear existing data?', shouldClear);
+        console.log('clearExisting option:', options.clearExisting);
+        
+        if (shouldClear) {
+          console.log('CLEARING ALL DATA!');
           // Clear existing data for full restore
           await this.subjects.clear();
           await this.decks.clear();
           await this.cards.clear();
           await this.sessions.clear();
+        } else {
+          console.log('NOT clearing data - preserving existing content');
         }
 
         // Handle single subject import
@@ -39,7 +53,6 @@ export class FlashcardDatabase extends Dexie {
           const { decks, ...subjectData } = data.subject;
           
           // Generate new IDs to avoid conflicts
-          const originalSubjectId = subjectData.id;
           const newSubjectId = `subject-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
           subjectData.id = newSubjectId;
           
@@ -55,7 +68,6 @@ export class FlashcardDatabase extends Dexie {
           if (decks) {
             for (const deck of decks) {
               const { cards, ...deckData } = deck;
-              const originalDeckId = deckData.id;
               const newDeckId = `deck-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
               deckData.id = newDeckId;
               deckData.subjectId = newSubjectId;

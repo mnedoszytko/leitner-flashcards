@@ -15,6 +15,9 @@ export const ImportExport: React.FC = () => {
   const navigate = useNavigate();
 
   const processImportData = async (data: any) => {
+    console.log('=== PROCESS IMPORT DATA ===');
+    console.log('Raw import data:', data);
+    
     // Validate data structure
     if (!data.version && !data.decks && !data.sections && !data.subject) {
       throw new Error('Invalid file format. Expected JSON with version, decks, sections, or subject.');
@@ -22,9 +25,12 @@ export const ImportExport: React.FC = () => {
 
     // Check if this is a single subject import
     const isSingleSubject = data.metadata?.exportType === 'single-subject';
+    console.log('Detected single subject import:', isSingleSubject);
+    console.log('Export type from metadata:', data.metadata?.exportType);
 
     // Initialize cards with Leitner algorithm for single subject
     if (isSingleSubject && data.subject) {
+      console.log('Processing single subject:', data.subject.name);
       if (data.subject.decks) {
         data.subject.decks = data.subject.decks.map((deck: any) => ({
           ...deck,
@@ -53,7 +59,11 @@ export const ImportExport: React.FC = () => {
 
     // Don't clear existing data for single subject imports
     const options = isSingleSubject ? { clearExisting: false } : { clearExisting: true };
+    console.log('Import options:', options);
+    console.log('Will clear existing data?', options.clearExisting);
+    
     const result = await db.importData(data, options);
+    console.log('Import result:', result);
     
     if (result.success) {
       setMessage({ type: 'success', text: result.message || 'Data imported successfully!' });
