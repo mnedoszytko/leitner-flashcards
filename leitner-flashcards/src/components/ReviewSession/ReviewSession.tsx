@@ -16,6 +16,7 @@ interface ReviewSessionProps {
 export const ReviewSession: React.FC<ReviewSessionProps> = ({ cards, deckId, onComplete, subjectName, subjectIcon }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
+  const [showHint, setShowHint] = useState(false);
   const sessionCards = cards;
   const [session, setSession] = useState<StudySession>({
     id: crypto.randomUUID(),
@@ -60,6 +61,7 @@ export const ReviewSession: React.FC<ReviewSessionProps> = ({ cards, deckId, onC
 
     setSession(updatedSession);
     setShowAnswer(false);
+    setShowHint(false);
 
     // Move to next card or complete session
     if (currentIndex < sessionCards.length - 1) {
@@ -77,6 +79,7 @@ export const ReviewSession: React.FC<ReviewSessionProps> = ({ cards, deckId, onC
 
   const nextCard = () => {
     setShowAnswer(false);
+    setShowHint(false);
     if (currentIndex < sessionCards.length - 1) {
       setCurrentIndex(currentIndex + 1);
     }
@@ -84,6 +87,7 @@ export const ReviewSession: React.FC<ReviewSessionProps> = ({ cards, deckId, onC
 
   const prevCard = () => {
     setShowAnswer(false);
+    setShowHint(false);
     if (currentIndex > 0) {
       setCurrentIndex(currentIndex - 1);
     }
@@ -195,15 +199,30 @@ export const ReviewSession: React.FC<ReviewSessionProps> = ({ cards, deckId, onC
             </AnimatePresence>
 
             {currentCard.hints && currentCard.hints.length > 0 && !showAnswer && (
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5 }}
-                className="text-center mt-4"
-              >
-                <p className="text-sm text-gray-500 italic">
-                  Hint: {currentCard.hints[0]}
-                </p>
+              <motion.div className="text-center mt-4">
+                {!showHint ? (
+                  <motion.button
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.3 }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setShowHint(true)}
+                    className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg text-sm font-medium transition-colors"
+                  >
+                    💡 Show Hint
+                  </motion.button>
+                ) : (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <p className="text-sm text-gray-500 italic">
+                      Hint: {currentCard.hints[0]}
+                    </p>
+                  </motion.div>
+                )}
               </motion.div>
             )}
           </div>
